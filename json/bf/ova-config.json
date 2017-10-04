@@ -1,0 +1,10 @@
+{
+  "ignition": {
+    "version": "2.1.0",
+    "config": {
+      "replace": {
+        "source": "http://ignition.borrowersfirst.net:8082/config.json"
+      }
+    }
+  }
+}
