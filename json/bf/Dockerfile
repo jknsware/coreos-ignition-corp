@@ -6,4 +6,4 @@ LABEL dockerfile_location=https://github.com/jknsware/coreos-igintion-corp \
   base_image=nginx:1.13.5-alpine
 
 # CoreOS Ignition config converted to json with ct
-COPY config.json /usr/share/nginx/html
+COPY ova-config-bf.json /usr/share/nginx/html
