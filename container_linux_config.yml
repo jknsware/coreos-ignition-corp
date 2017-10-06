@@ -1,0 +1,55 @@
+# See here for Container Linux Config examples:
+#   https://coreos.com/os/docs/latest/clc-examples.html
+
+# This config is meant to be consumed by the config transpiler, which will
+# generate the corresponding Ignition config. Do not pass this config directly
+# to instances of Container Linux.
+
+# ---------------------------------------------------------------------------------------------------
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# Warning! Keep this file to a minimum as it's being parsed through another script (ignition_gen.sh)
+#   which transposes the file further to make it parsable via Packer.
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ---------------------------------------------------------------------------------------------------
+
+passwd:
+  users:
+    - name: core
+#      ssh_authorized_keys:
+#        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGdByTgSVHq
+      password_hash: "$6$iY1rVISI$b0KiNm2hvkPXBFJElG9k8xgsM7T2Jr5m79q/jh5P9UqgegHsL1oqC4h6MOCdgMFskkD4UGGK58z2HKfOVcapn1"
+      #(Password = core)
+
+systemd:
+  units:
+   - name: open-vm-tools.service
+     enabled: true
+     contents: |
+       [Unit]
+       Description=Service for virtual machines hosted on VMware
+       Documentation=http://open-vm-tools.sourceforge.net/about.php
+       ConditionVirtualization=vmware
+
+       [Service]
+       Restart=always
+       RestartSec=7
+       StartLimitInterval=400
+       StartLimitBurst=3
+       ExecStart=/usr/bin/rkt run --volume systemd,kind=host,source=/run/systemd --mount volume=systemd,target=/run/systemd --insecure-options=image --net=host docker://godmodelabs/open-vm-tools
+
+       [Install]
+       WantedBy=multi-user.target
+  # - name: open-vm-tools.service
+  #   enabled: true
+  #   contents: |
+  #     [Unit]
+  #     Description=blah
+  #     Documentation=blah
+  #     ConditionVirtualization=vmware
+
+  #     [Service]
+  #     Restart=always
+  #     ExecStart=/usr/bin/docker run --rm --net=host -v /run/systemd:/run/systemd --name open-vm-tools godmodelabs/open-vm-tools
+  #     ExecStop=-/usr/bin/docker stop open-vm-tools
