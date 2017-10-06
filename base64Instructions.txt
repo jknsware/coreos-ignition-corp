@@ -1,0 +1,7 @@
+# Base64 Instructions
+
+# Encode with Base64
+cat ignition.json | base64 >> nameOfFile.txt
+
+# Decode with Base64
+cat nameOfFile.txt | base64 --decode
