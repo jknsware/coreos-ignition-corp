@@ -6,6 +6,8 @@
 ### project-specific.gitignore
 ################################################################################
 *.vmdk
+# [Bb]in/ - Commented out from VisualStudio.gitignore
+test/
 
 
 ################################################################################
@@ -199,7 +201,7 @@ fabric.properties
 x64/
 x86/
 bld/
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
 [Ll]og/
 
