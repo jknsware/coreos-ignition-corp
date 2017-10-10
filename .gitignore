@@ -8,6 +8,8 @@
 *.vmdk
 # [Bb]in/ - Commented out from VisualStudio.gitignore
 test/
+*.bz2
+
 
 
 ################################################################################
