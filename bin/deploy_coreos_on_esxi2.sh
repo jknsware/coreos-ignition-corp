@@ -24,7 +24,8 @@
 #   ** DONE - Update Linux type
 #   ** DONE - Update VirtualSystemType
 #   * Function to push to desired host (or vSphere)
-#   * Handle secrets
+#   * Handle secrets - Use Export
+#   * SED Error handling and version control for CentOS7
 #   * Update cmdline args
 #   * Either create the template or pass along the job to build template
 
@@ -62,6 +63,7 @@ exit 1
 _TOOLS=(
   'ovftool'
   'bunzip2'
+  'sed'
   )
 
 for tool in "${_TOOLS[@]}"; do
