@@ -81,12 +81,11 @@ Usage:
       export _ESXI_USERNAME="bob"; export _ESXI_PASSWORD="bobspassword"; export _VCENTER_SERVER_NAME="vsphere.name.net/DataCenter-NAME/host/Cluster-Name/esxi-server.name.net"; export _ESXI_DATASTORE="storage_disk"; export _ESXI_FOLDER="bobsfolder"; _ESXI_NETWORK="VM Network; ./$0 deploy_coreos_on_esxi.sh
 
 Options:
-  $0 { --help | --skip_download | -channel }
+  $0 { --help | --channel }
 
  Usage: $0 [OPTIONS]
   Options:
     -h, --help  Show usage only.
-    -s, --skip_download  Do not attempt to download of latest CoreOS.
     -c, --channel [channel=stable]  REQUIRED - Use specific coreos channel: alpha, beta, stable.
 _EOF_
 exit 1
@@ -108,7 +107,6 @@ _TOOLS=(
   'ovftool'
   'bunzip2'
   'sed'
-  'openssl'
   )
 
 for tool in "${_TOOLS[@]}"; do
