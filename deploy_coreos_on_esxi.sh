@@ -65,7 +65,7 @@ Usage:
     2) "_ESXI_PASSWORD" --       Used to authenticate to the ESXi or vSphere server.
     3) "_VCENTER_SERVER_NAME" -- Used to specify the ESXi or vSphere server name and the path of where the VM should be pushed to. Eg: vsphere.name.net/DataCenter-NAME/host/Cluster-Name/esxi-server.name.net
     4) "_ESXI_DATASTORE" --      Used to specify the data store or disk the VM will be stored.
-    5) "_ESXI_FOLDER" --         Used to specify the vCenter folder to store the VM.
+    5) "_ESXI_FOLDER" --         Used to specify the vCenter folder to store the VM. Can also equal "false" to not include a folder.
     6) "_ESXI_NETWORK" --        Used to specify the vCenter network to attach the VM to.
 
     Example:
@@ -74,6 +74,8 @@ Usage:
       export _VCENTER_SERVER_NAME="vsphere.name.net/DataCenter-NAME/host/Cluster-Name/esxi-server.name.net"
       export _ESXI_DATASTORE="storage_disk"
       export _ESXI_FOLDER="bobsfolder"
+        or
+          export _ESXI_FOLDER="false"
       export _ESXI_NETWORK="VM Network"
     And then run the script from the coreos-ignition-corp directory:
       $0 deploy_coreos_on_esxhi.sh
@@ -86,15 +88,15 @@ Options:
  Usage: $0 [OPTIONS]
   Options:
     -h, --help  Show usage only.
-    -c, --channel [channel=stable]  REQUIRED - Use specific coreos channel: alpha, beta, stable.
+    -c, --channel [--channel stable]  REQUIRED - Use specific coreos channel: alpha, beta, stable.
 _EOF_
 exit 1
 }
 
 # ----------------------------------------------------------------------------------
 # Variables:
-
 _CHANNEL=false
+NO_ESXI_FOLDER=false
 
 # ----------------------------------------------------------------------------------
 # Script parameters and Sanity Checking - Inputs (Environment variables):
@@ -120,8 +122,15 @@ done
 [ -z ${_ESXI_PASSWORD+x} ] && echo -e "${RED}\"_ESXI_PASSWORD\" - Environment variable is not set.${NC}" && usage
 [ -z ${_VCENTER_SERVER_NAME+x} ] && echo -e "${RED}\"_VCENTER_SERVER_NAME\" - Environment variable is not set.${NC}" && usage
 [ -z ${_ESXI_DATASTORE+x} ] && echo -e "${RED}\"_ESXI_DATASTORE\" - Environment variable is not set.${NC}" && usage
-[ -z ${_ESXI_FOLDER+x} ] && echo -e "${RED}\"_ESXI_FOLDER\" - Environment variable is not set.${NC}" && usage
+# [ -z ${_ESXI_FOLDER+x} ] && echo -e "${RED}\"_ESXI_FOLDER\" - Environment variable is not set.${NC}" && usage
 [ -z ${_ESXI_NETWORK+x} ] && echo -e "${RED}\"_ESXI_NETWORK\" - Environment variable is not set.${NC}" && usage
+
+# Check that folder is set or not required
+if [[ -z ${_ESXI_FOLDER+x} ]] ; then
+  echo -e "${RED}\"_ESXI_FOLDER\" - Environment variable is not set.${NC}" && usage
+elif [[ "${_ESXI_FOLDER}" = "false" ]] ; then
+  NO_ESXI_FOLDER=true
+fi
 
 # ----------------------------------------------------------------------------------
 # Functions:
@@ -143,6 +152,7 @@ update_image () {
 
 download_centos () {
   # CoreOS URLs
+  
   _CORE_OS_OVF_URL=https://${_CHANNEL}.release.core-os.net/amd64-usr/current/coreos_production_vmware_ova.ovf
   _CORE_OS_VMDK_URL=https://${_CHANNEL}.release.core-os.net/amd64-usr/current/coreos_production_vmware_ova_image.vmdk.bz2
   _CORE_OS_VERSION_URL=https://${_CHANNEL}.release.core-os.net/amd64-usr/current/version.txt
@@ -200,6 +210,10 @@ upload_new_image () {
   if [[ ! -f ${CORE_OS_VMDK_FILE} ]] ; then
     echo -e "${RED}${HR}\"CoreOS VMDK disk file\" - File does not exist.${NC}"
     exit 1
+  fi
+  if [[ ${NO_ESXI_FOLDER} = "true" ]] ; then
+    echo -e "${GREEN}${HR}\nUploading ${CORE_OS_OVF_FILE} to ESX/vSphere with no folder set.${HR}${NC}"
+    ovftool --skipManifestCheck --disableVerification --noSSLVerify --diskMode=thin --datastore=${_ESXI_DATASTORE} --overwrite ${CORE_OS_OVF_FILE} vi://${_ESXI_USERNAME}:${_ESXI_PASSWORD}@${_VCENTER_SERVER_NAME}
   else
     echo -e "${GREEN}${HR}\nUploading ${CORE_OS_OVF_FILE} to ESX/vSphere.${HR}${NC}"
     ovftool --skipManifestCheck --disableVerification --noSSLVerify --diskMode=thin --datastore=${_ESXI_DATASTORE} --vmFolder=${_ESXI_FOLDER} --overwrite ${CORE_OS_OVF_FILE} vi://${_ESXI_USERNAME}:${_ESXI_PASSWORD}@${_VCENTER_SERVER_NAME}
@@ -244,7 +258,7 @@ if [[ ${_CHANNEL} != "false" ]] ; then
   update_ovf
   upload_new_image
 else
-  echo -e "${RED}${HR}\nNothing to do.${NC}"
+  echo -e "${RED}${HR}\nNothing to do. Is --channel set?${HR}${NC}"
 fi
 
 
