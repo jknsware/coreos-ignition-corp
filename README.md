@@ -49,6 +49,9 @@
 ## References
 
 [CoreOS Container Linux on ESXi with OVFTool](http://anton.lindstrom.io/coreos-on-esxi/)
+
 [Ignition Example Configs](https://coreos.com/ignition/docs/latest/examples.html)
+
 [OVF Tool Usage for Import and Export Virtual Machine](http://www.itadminstrator.com/2014/06/ovf-tool-usage-for-import-and-export.html)
+
 [OVF Reference](http://wiki.abiquo.com/display/ABI38/OVF+Reference#OVFReference-DiskSection)
