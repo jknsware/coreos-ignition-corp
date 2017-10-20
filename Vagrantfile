@@ -1,6 +1,37 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+$quick_setup = <<SCRIPT
+
+# Check that the repository is mounted into the VM:
+if [ ! -f /vagrant/reference/build.sh ]; then
+  echo "Could not find '/vagrant/reference/build.sh'. Is the directory mounting into Vagrant?" && exit 1
+fi
+
+# Install OVFTool
+echo "Checking for ovftool and if it's not installed, installing it."
+[ -f /usr/bin/ovftool ] || sudo /vagrant/reference/tools/VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --eulas-agreed --required
+_OVFTOOL_VERSION=$(ovftool --version) && echo ${_OVFTOOL_VERSION}
+
+# Install Ansible
+echo "Checking for ansible and if it's not installed, installing it."
+[ -f /usr/bin/ansible ] || sudo yum install epel-release ansible-2.3.1.0 -y
+_ANSIBLE_VERSION=$(ansible --version) && echo ${_ANSIBLE_VERSION}
+
+# Install pip
+echo "Checking for pip and if it's not installed, installing it."
+[ -f /usr/bin/pip ] || sudo yum install python-pip -y
+_PIP_VERSION=$(pip --version) && echo ${_PIP_VERSION}
+
+# Install pyvmomi
+echo "Checking for pyvmomi and if it's not installed, installing it."
+if ! pip --disable-pip-version-check list | grep pyvmomi ; then
+  sudo pip --disable-pip-version-check install pyvmomi
+fi
+_PYVMOMI_VERSION=$(pip --disable-pip-version-check list | grep pyvmomi) && echo ${_PYVMOMI_VERSION}
+
+SCRIPT
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -67,4 +98,7 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+  config.vm.provision "shell" do |s|
+    s.inline = $quick_setup
+  end
 end

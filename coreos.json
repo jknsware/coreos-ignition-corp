@@ -1,0 +1,80 @@
+{
+  "_comment": "Builds CoreOS image.",
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "vm_name": "{{user `vm_name`}}",
+      "vmdk_name": "{{user `vm_name`}}",
+      "keep_registered": true,
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "http://{{user `channel`}}.release.core-os.net/amd64-usr/{{user `coreos_version`}}/coreos_production_iso_image.iso",
+      "ssh_port": 22,
+      "ssh_username": "core",
+      "ssh_password": "core",
+      "ssh_wait_timeout": "10m",
+      "guest_os_type": "{{ user `vmware_guest_os_type` }}",
+      "disk_size": "{{ user `disk_size` }}",
+      "vmx_data": {
+          "cpuid.coresPerSocket": "1",
+          "memsize": "{{ user `memory` }}",
+          "numvcpus": "{{ user `cpus` }}",
+          "vhv.enable": "TRUE",
+          "ethernet0.addresstype": "generated",
+          "ethernet0.networkName": "1-SRV",
+          "ethernet0.present": "TRUE",
+          "ethernet0.virtualdev": "vmxnet3"
+      },
+      "boot_command": [
+          "<enter>",
+          "sudo -i<enter>",
+          "systemctl stop sshd.socket<enter>",
+          "echo {{user `ignition_config`}} > ignition.json<enter>",
+          "coreos-install -d /dev/sda -C {{user `channel`}} -i ignition.json<enter>",
+          "reboot<enter>"
+      ],
+      "boot_wait": "30s",
+      "shutdown_command": "{{ user `shutdown_command` }}",
+      "output_directory": "{{ user `vm_name` }}-build",
+      "vmx_remove_ethernet_interfaces": true,
+      "headless": "{{ user `headless` }}",
+      "remote_type": "esx5",
+      "remote_host": "{{ user `packer_vmware_esx_server` }}",
+      "remote_username": "{{ user `packer_vmware_remote_ssh_user_name` }}",
+      "remote_password": "{{ user `packer_vmware_remote_ssh_user_password` }}",
+      "remote_datastore": "{{ user `packer_remote_datastore` }}",
+      "vnc_bind_address": "0.0.0.0",
+      "vnc_disable_password": true,
+      "vnc_port_min": 5944,
+      "vnc_port_max": 5954
+    }
+  ],
+  "post-processors": [],
+  "provisioners": [
+    {
+      "environment_vars": [
+        "CLEANUP_BUILD_TOOLS=FAKEVALUE"
+      ],
+      "execute_command": "echo 'core' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "custom-script.sh"
+      ],
+      "type": "shell"
+    }
+  ],
+  "variables": {
+    "channel": "stable",
+    "iso_checksum": "fbdfd45a63c877330ce5da75def7fc52",
+    "iso_checksum_type": "md5",
+    "coreos_version": "1465.8.0",
+    "vmware_guest_os_type": "otherlinux-64",
+    "disk_size": "8192",
+    "cpus": "1",
+    "headless": "True",
+    "memory": "1024",
+    "shutdown_command": "sudo -S shutdown -P now",
+    "update": "false",
+    "version": "0.0.99",
+    "cleanup_build_tools": "true"
+  }
+}

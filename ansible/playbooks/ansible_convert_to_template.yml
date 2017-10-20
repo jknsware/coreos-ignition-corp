@@ -1,0 +1,19 @@
+# Requires:
+# ansible 2.3.1.0
+# pip install pyvmomi
+# (pyvmomi (6.5.0.2017.5.post1)
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - debug: msg="Running Ansible on the localhost."
+    - name: Converting VM ({{ vcenter_template_folder_full_path_for_ansible }}/{{ vm_template_name }}) to a template
+      vmware_guest:
+        hostname: "{{ vcenter_server }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ _vcenter_user_password }}"
+        validate_certs: no
+        datacenter: "{{ vcenter_datacenter }}"
+        cluster: "{{ vcenter_cluster }}"
+        folder: "{{ vcenter_template_folder_full_path_for_ansible }}"
+        name: "{{ vm_template_name }}"
+        is_template: yes

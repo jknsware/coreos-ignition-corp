@@ -1,0 +1,18 @@
+{
+  "_comment": "Build with `packer build -var-file=coreos-vars.json coreos.json`",
+  "version": "0.0.1",
+  "channel": "stable",
+  "iso_checksum": "acc7f2d712e5c6414bb19dcda6040b58",
+  "iso_checksum_type": "md5",
+  "coreos_version": "current",
+  "vmware_guest_os_type": "otherlinux-64",
+  "disk_size": "40960",
+  "cpus": "1",
+  "headless": "",
+  "memory": "512",
+  "shutdown_command": "sudo -S shutdown -P now",
+  "update": "false",
+  "version": "0.0.99",
+  "vm_name": "coreos",
+  "cleanup_build_tools": "true"
+}
