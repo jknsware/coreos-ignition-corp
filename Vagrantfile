@@ -4,13 +4,13 @@
 $quick_setup = <<SCRIPT
 
 # Check that the repository is mounted into the VM:
-if [ ! -f /vagrant/reference/build.sh ]; then
-  echo "Could not find '/vagrant/reference/build.sh'. Is the directory mounting into Vagrant?" && exit 1
+if [ ! -f /vagrant/build.sh ]; then
+  echo "Could not find '/vagrant/build.sh'. Is the directory mounting into Vagrant?" && exit 1
 fi
 
 # Install OVFTool
 echo "Checking for ovftool and if it's not installed, installing it."
-[ -f /usr/bin/ovftool ] || sudo /vagrant/reference/tools/VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --eulas-agreed --required
+[ -f /usr/bin/ovftool ] || sudo /vagrant/tools/VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --eulas-agreed --required
 _OVFTOOL_VERSION=$(ovftool --version) && echo ${_OVFTOOL_VERSION}
 
 # Install Ansible
